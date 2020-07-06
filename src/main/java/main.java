@@ -9,15 +9,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public class main {
     public static void main(String[] args) throws Exception {
-        if(args.length == 0){
-            System.out.println("Enter topic name");
+        if(args.length < 2){
+            System.out.println("Enter topic name and servers adres");
             return;
         }
         //Kafka consumer configuration settings
         String topicName = args[0].toString();
+        String server = args[1].toString();
         Properties props = new Properties();
 
-        props.put("bootstrap.servers", "10.126.243.128:9092");
+        props.put("bootstrap.servers", server);
         props.put("group.id", "test");
         props.put("enable.auto.commit", "true");
         props.put("auto.commit.interval.ms", "1000");
