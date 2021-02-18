@@ -1,0 +1,54 @@
+security:
+    encoders:
+        Symfony\Component\Ldap\Security\LdapUser:
+            algorithm: auto
+        App\Entity\User:
+            algorithm: auto
+
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        ldap_user_provider:
+            ldap:
+                service: Symfony\Component\Ldap\Ldap
+                base_dn: dc=example,dc=com
+                search_dn: "cn=admin,dc=example,dc=com"
+                search_password: pass
+                default_roles: ROLE_USER
+                uid_key: uid
+                #extra_fields: ['email']
+                password_attribute: userPassword
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: uid
+        app_user_provider_and_ldap_user_provider:
+            chain:
+                providers: ['app_user_provider', 'ldap_user_provider' ]
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: true
+            lazy: true
+            provider: app_user_provider_and_ldap_user_provider
+            guard:
+                authenticators:
+                    - App\Security\AppCustomAuthenticator
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                # target: app_any_route
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # - { path: ^/profile, roles: ROLE_USER }
